@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language-Helper - Global Language Learning Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@700;800;900&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-family: "Zen Maru Gothic", "Nunito", "Jua", sans-serif;
+            color: #513d2d;
+            background:
+                radial-gradient(circle at 8% 22%, rgba(255, 196, 214, 0.35) 0 8%, transparent 9%),
+                radial-gradient(circle at 92% 28%, rgba(156, 226, 141, 0.32) 0 9%, transparent 10%),
+                #fff8df;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .portal-header {
+            border-bottom: 5px solid #f0b900;
+            background: #ffd700;
+            box-shadow: 0 6px 0 rgba(232, 168, 0, 0.45);
+        }
+
+        .header-top {
+            display: flex;
+            width: min(1120px, 94vw);
+            margin: 0 auto;
+            padding: 18px 0 14px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #278d3f;
+            font-size: clamp(26px, 4vw, 42px);
+            font-weight: 900;
+            line-height: 1;
+            text-shadow: 0 3px 0 #fff3a7;
+            white-space: nowrap;
+        }
+
+        .logo small {
+            color: #7b5a28;
+            font-family: "Nunito", sans-serif;
+            font-size: clamp(14px, 2vw, 20px);
+            font-weight: 900;
+        }
+
+        .search-box {
+            display: flex;
+            width: min(420px, 42vw);
+            padding: 5px;
+            border: 4px solid #22a34a;
+            border-radius: 999px;
+            background: #ffffff;
+            box-shadow: 0 5px 0 rgba(50, 145, 63, 0.24);
+        }
+
+        .search-box input {
+            width: 100%;
+            min-width: 0;
+            border: 0;
+            padding: 10px 16px;
+            color: #8b765b;
+            font-family: inherit;
+            font-size: 17px;
+            font-weight: 900;
+            outline: none;
+        }
+
+        .search-box button {
+            width: 48px;
+            height: 48px;
+            flex: 0 0 48px;
+            border: 0;
+            border-radius: 50%;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+            background: #24b44f;
+            box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.12);
+            transition: transform 0.16s ease;
+        }
+
+        .search-box button:hover {
+            transform: scale(1.08) rotate(-6deg);
+        }
+
+        .category-tabs {
+            display: flex;
+            width: min(1120px, 94vw);
+            margin: 0 auto;
+            padding: 0 0 12px;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .category-tab {
+            display: inline-flex;
+            min-height: 48px;
+            padding: 10px 22px;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #ffffff;
+            border-radius: 999px;
+            color: #ffffff;
+            font-size: clamp(15px, 2vw, 20px);
+            font-weight: 900;
+            background: #ff8a3d;
+            box-shadow: 0 5px 0 rgba(180, 93, 31, 0.32);
+        }
+
+        .category-tab:nth-child(2) {
+            background: #28b85c;
+            box-shadow: 0 5px 0 rgba(35, 125, 66, 0.32);
+        }
+
+        .portal-main {
+            width: min(1120px, 94vw);
+            margin: 0 auto;
+            padding: 38px 0 64px;
+        }
+
+        .hero-strip {
+            display: flex;
+            margin-bottom: 30px;
+            padding: 18px clamp(18px, 4vw, 34px);
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            border: 4px solid #ffcf58;
+            border-radius: 28px;
+            background: #ffffff;
+            box-shadow: 0 10px 0 rgba(243, 184, 65, 0.28), 0 16px 28px rgba(146, 107, 58, 0.12);
+        }
+
+        .hero-strip p {
+            margin: 0;
+            color: #7a5a40;
+            font-size: clamp(18px, 2.6vw, 26px);
+            font-weight: 900;
+        }
+
+        .hero-emojis {
+            font-size: clamp(30px, 5vw, 54px);
+            white-space: nowrap;
+        }
+
+        .section-title {
+            display: inline-block;
+            margin: 0 0 24px;
+            padding: 12px 28px;
+            border: 4px solid #ffffff;
+            border-radius: 999px;
+            color: #ffffff;
+            font-size: clamp(25px, 4vw, 38px);
+            font-weight: 900;
+            background: #4caf50;
+            box-shadow: 0 7px 0 rgba(49, 130, 54, 0.35);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(210px, 300px));
+            gap: 22px;
+            justify-content: center;
+        }
+
+        .game-card {
+            display: flex;
+            min-height: 230px;
+            padding: 22px 18px 20px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            border: 5px solid #f5c85d;
+            border-radius: 28px;
+            background: #ffffff;
+            box-shadow: 0 10px 0 rgba(230, 175, 71, 0.34), 0 16px 26px rgba(137, 101, 48, 0.14);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-9px) rotate(-1deg);
+            border-color: #ff95b5;
+            box-shadow: 0 16px 0 rgba(235, 142, 169, 0.32), 0 24px 34px rgba(137, 101, 48, 0.16);
+        }
+
+        .game-card:nth-child(2) {
+            border-color: #95d984;
+            box-shadow: 0 10px 0 rgba(124, 190, 104, 0.3), 0 16px 26px rgba(137, 101, 48, 0.14);
+        }
+
+        .game-card:nth-child(3) {
+            border-color: #ff9fc0;
+            box-shadow: 0 10px 0 rgba(230, 132, 166, 0.28), 0 16px 26px rgba(137, 101, 48, 0.14);
+        }
+
+        .game-icon {
+            display: grid;
+            width: 116px;
+            height: 116px;
+            place-items: center;
+            border-radius: 34px;
+            font-size: 66px;
+            background: linear-gradient(180deg, #fff9dc 0%, #ffe7f0 100%);
+            box-shadow: inset 0 -8px 0 rgba(255, 202, 91, 0.22);
+        }
+
+        .game-title {
+            margin: 20px 0 0;
+            color: #5d432f;
+            font-size: clamp(20px, 2.8vw, 28px);
+            font-weight: 900;
+            line-height: 1.35;
+            text-align: center;
+        }
+
+        .game-subtitle {
+            display: block;
+            margin-top: 5px;
+            color: #9b7a57;
+            font-size: clamp(14px, 2vw, 18px);
+        }
+
+        @media (max-width: 720px) {
+            .header-top {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .logo {
+                justify-content: center;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .category-tabs {
+                overflow-x: auto;
+                justify-content: center;
+                padding-bottom: 14px;
+            }
+
+            .category-tab {
+                flex: 0 0 auto;
+            }
+
+            .hero-strip {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .game-grid {
+                grid-template-columns: minmax(210px, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="portal-header">
+    <div class="header-top">
+        <a class="logo" href="/">
+            <span>🌱 Language-Helper</span>
+        </a>
+        <form class="search-box" action="#" aria-label="検索">
+            <input type="text" placeholder="なにを勉強する？" aria-label="検索キーワード">
+            <button type="submit" aria-label="検索">🔍</button>
+        </form>
+    </div>
+    <nav class="category-tabs" aria-label="カテゴリ">
+        <a class="category-tab" href="#">ハングル学習 (한글 학습)</a>
+        <a class="category-tab" href="#">ミニゲーム (미니 게임)</a>
+    </nav>
+</header>
+
+<main class="portal-main">
+    <section class="hero-strip" aria-label="ポータル案内">
+        <p>韓国語をあそびながら、ちょっとずつ育てよう！</p>
+        <div class="hero-emojis" aria-hidden="true">🌸 🌻 🍀 🌷</div>
+    </section>
+
+    <section aria-labelledby="recommended-games">
+        <h1 id="recommended-games" class="section-title">🎮 おすすめゲーム (추천 게임)</h1>
+        <div class="game-grid">
+            <a class="game-card" href="/game/vowel">
+                <div class="game-icon" aria-hidden="true">🌿</div>
+                <p class="game-title">母音の雑草ぬき<span class="game-subtitle">(모음 잡초 뽑기)</span></p>
+            </a>
+            <a class="game-card" href="#">
+                <div class="game-icon" aria-hidden="true">🔨</div>
+                <p class="game-title">モグラたたき<span class="game-subtitle">(두더지 잡기)</span></p>
+            </a>
+            <a class="game-card" href="#">
+                <div class="game-icon" aria-hidden="true">🃏</div>
+                <p class="game-title">カード合わせ<span class="game-subtitle">(카드 짝맞추기)</span></p>
+            </a>
+        </div>
+    </section>
+</main>
+</body>
+</html>
