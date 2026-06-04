@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>母音の雑草ぬき</title>
+    <title>KokoLang (ココラン) - 母音キャッチ！</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@700;800;900&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
@@ -12,246 +12,535 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --ink: #273238;
+            --muted: #64727a;
+            --panel: #ffffff;
+            --line: #d9e1e6;
+            --green: #1f9d55;
+            --green-dark: #13723b;
+            --yellow: #f4c542;
+            --red: #e25555;
+            --blue: #2563eb;
+            --bg: #f5f7fa;
+        }
+
         body {
             margin: 0;
             min-height: 100vh;
-            overflow-x: hidden;
             font-family: "Zen Maru Gothic", "Nunito", "Jua", sans-serif;
-            color: #684c37;
-            text-align: center;
-            background:
-                radial-gradient(circle at 14% 14%, rgba(255, 255, 255, 0.8) 0 7%, transparent 8%),
-                radial-gradient(circle at 88% 18%, rgba(255, 232, 178, 0.82) 0 8%, transparent 9%),
-                linear-gradient(140deg, #fff8d7 0%, #ffe0ed 48%, #d7f7d1 100%);
+            color: var(--ink);
+            background: var(--bg);
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .hud {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            min-height: 68px;
+            padding: 12px clamp(16px, 4vw, 42px);
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 24px rgba(39, 50, 56, 0.08);
+        }
+
+        .brand {
+            color: var(--green-dark);
+            font-size: clamp(19px, 3vw, 28px);
+            font-weight: 900;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .hud-stats {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hud-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quit-button {
+            min-height: 48px;
+            padding: 10px 16px;
+            border: 2px solid #ffc5a6;
+            border-radius: 8px;
+            color: #8f3f22;
+            background: #fff0e8;
+            font-size: 17px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #f0aa82, 0 12px 20px rgba(194, 102, 64, 0.14);
+            transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+            white-space: nowrap;
+        }
+
+        .quit-button:hover {
+            filter: brightness(1.03);
+            transform: translateY(-2px);
+        }
+
+        .quit-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #f0aa82, 0 7px 14px rgba(194, 102, 64, 0.12);
+        }
+
+        .stat {
+            min-width: 112px;
+            padding: 8px 14px;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            text-align: left;
+        }
+
+        .stat-label {
+            display: block;
+            color: var(--muted);
+            font-family: "Nunito", sans-serif;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            display: block;
+            margin-top: 2px;
+            font-size: 20px;
+            font-weight: 900;
+            line-height: 1;
         }
 
         main {
-            position: relative;
-            z-index: 1;
-            width: min(94vw, 980px);
+            width: min(94vw, 900px);
             margin: 0 auto;
-            padding: 34px 18px 56px;
+            padding: clamp(24px, 5vw, 48px) 0 56px;
         }
 
-        .deco {
-            position: fixed;
-            z-index: 0;
-            font-size: clamp(30px, 5vw, 66px);
-            filter: drop-shadow(0 8px 10px rgba(184, 128, 93, 0.16));
-            animation: float 4.5s ease-in-out infinite;
-            pointer-events: none;
+        .game-shell {
+            display: grid;
+            gap: 24px;
         }
 
-        .deco.one {
-            top: 7%;
-            left: 5%;
-        }
-
-        .deco.two {
-            top: 9%;
-            right: 7%;
-            animation-delay: 0.8s;
-        }
-
-        .deco.three {
-            bottom: 7%;
-            left: 6%;
-            animation-delay: 1.3s;
-        }
-
-        .deco.four {
-            right: 6%;
-            bottom: 8%;
-            animation-delay: 1.9s;
-        }
-
-        .game-header {
-            margin: 0 auto 24px;
-            padding: 22px clamp(18px, 4vw, 42px);
-            border: 5px solid rgba(255, 255, 255, 0.84);
-            border-radius: 34px;
-            background: rgba(255, 255, 255, 0.74);
-            box-shadow: 0 14px 0 rgba(239, 180, 106, 0.26), 0 20px 34px rgba(150, 105, 78, 0.16);
-            backdrop-filter: blur(7px);
+        .lesson-panel {
+            padding: clamp(22px, 5vw, 42px);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel);
+            box-shadow: 0 18px 44px rgba(39, 50, 56, 0.1);
+            text-align: center;
         }
 
         h1 {
-            margin: 0 0 12px;
-            color: #ff7c68;
-            font-size: clamp(30px, 5vw, 54px);
+            margin: 0 0 10px;
+            color: var(--ink);
+            font-size: clamp(26px, 5vw, 44px);
             font-weight: 900;
-            line-height: 1.18;
-            text-shadow: 0 4px 0 #fff0b5;
+            line-height: 1.2;
         }
 
-        .hint {
-            margin: 0;
-            color: #7b5b42;
-            font-size: clamp(17px, 2.8vw, 24px);
-            font-weight: 900;
+        .instruction {
+            max-width: 620px;
+            margin: 0 auto 26px;
+            color: var(--muted);
+            font-size: clamp(16px, 2.5vw, 20px);
+            font-weight: 800;
+            line-height: 1.55;
         }
 
-        .target-wrap {
-            margin: 28px 0 34px;
-        }
-
-        .target-label {
-            display: inline-block;
-            margin-bottom: 12px;
-            padding: 9px 20px;
-            border-radius: 999px;
-            color: #f77697;
-            font-size: clamp(17px, 2.8vw, 24px);
-            font-weight: 900;
-            background: #fff2f7;
-            box-shadow: inset 0 -5px 0 rgba(255, 190, 205, 0.48);
-        }
-
-        .target {
+        .listen-card {
             display: grid;
-            width: clamp(132px, 22vw, 190px);
-            height: clamp(132px, 22vw, 190px);
+            gap: 16px;
+            width: min(100%, 460px);
             margin: 0 auto;
-            place-items: center;
-            border: 7px solid #ffffff;
-            border-radius: 44px;
-            color: #4f8f41;
-            font-family: "Jua", "Zen Maru Gothic", sans-serif;
-            font-size: clamp(76px, 14vw, 128px);
-            font-weight: 900;
-            background: linear-gradient(180deg, #ffffff 0%, #fff8d7 100%);
-            box-shadow: 0 15px 0 #f5ca75, 0 24px 36px rgba(160, 111, 67, 0.2);
         }
 
-        .garden {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
-            gap: 18px;
-            max-width: 760px;
-            margin: 0 auto;
-            padding: 22px;
-            border: 5px solid rgba(255, 255, 255, 0.7);
-            border-radius: 34px;
-            background: rgba(255, 255, 255, 0.48);
-            box-shadow: inset 0 -9px 0 rgba(143, 207, 121, 0.22), 0 16px 28px rgba(128, 96, 67, 0.14);
-        }
-
-        .vowel-button {
-            position: relative;
-            min-height: 96px;
+        .listen-button {
+            display: inline-flex;
+            min-height: 92px;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
             border: 0;
-            border-radius: 30px;
+            border-radius: 8px;
             color: #ffffff;
-            font-family: "Jua", "Zen Maru Gothic", sans-serif;
-            font-size: clamp(42px, 7vw, 62px);
+            font-size: clamp(28px, 6vw, 44px);
             font-weight: 900;
             cursor: pointer;
-            background: linear-gradient(180deg, #9be67a 0%, #61bf54 100%);
-            box-shadow: 0 10px 0 #479745, 0 15px 22px rgba(87, 132, 65, 0.2);
-            text-shadow: 0 3px 0 rgba(53, 121, 55, 0.25);
-            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+            background: var(--green);
+            box-shadow: 0 8px 0 var(--green-dark), 0 16px 26px rgba(31, 157, 85, 0.2);
+            transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
         }
 
-        .vowel-button:nth-child(3n) {
-            background: linear-gradient(180deg, #ffb7ca 0%, #ff83a4 100%);
-            box-shadow: 0 10px 0 #d96986, 0 15px 22px rgba(171, 93, 114, 0.18);
-        }
-
-        .vowel-button:nth-child(4n) {
-            background: linear-gradient(180deg, #ffd66f 0%, #ffb84f 100%);
-            box-shadow: 0 10px 0 #d9943f, 0 15px 22px rgba(172, 126, 60, 0.18);
-        }
-
-        .vowel-button::after {
-            position: absolute;
-            right: 12px;
-            bottom: 8px;
-            content: "🌱";
-            font-size: 22px;
-            text-shadow: none;
-        }
-
-        .vowel-button:hover {
-            transform: translateY(-5px) scale(1.08);
+        .listen-button:hover {
             filter: brightness(1.04);
-            animation: bounce 0.42s ease-in-out;
+            transform: translateY(-2px);
         }
 
-        .vowel-button:active {
-            transform: translateY(5px) scale(0.98);
-            box-shadow: 0 5px 0 #479745, 0 10px 16px rgba(87, 132, 65, 0.16);
+        .listen-button:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 var(--green-dark), 0 9px 18px rgba(31, 157, 85, 0.16);
         }
 
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) rotate(-4deg);
-            }
-
-            50% {
-                transform: translateY(-13px) rotate(5deg);
-            }
+        .hint-box {
+            padding: 14px 16px;
+            border: 2px solid #e4ebef;
+            border-radius: 8px;
+            color: #40505a;
+            background: #f8fafb;
+            font-size: clamp(22px, 5vw, 34px);
+            font-weight: 900;
         }
 
-        @keyframes bounce {
-            0%, 100% {
-                rotate: 0deg;
+        .options-panel {
+            padding: clamp(18px, 4vw, 28px);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 14px 34px rgba(39, 50, 56, 0.08);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(128px, 1fr));
+            gap: clamp(14px, 3vw, 20px);
+            width: min(100%, 520px);
+            margin: 0 auto;
+        }
+
+        .option-button {
+            display: grid;
+            aspect-ratio: 1 / 1;
+            min-height: 128px;
+            place-items: center;
+            border: 3px solid #cdd8de;
+            border-radius: 8px;
+            color: var(--ink);
+            background: #ffffff;
+            font-family: "Jua", "Zen Maru Gothic", sans-serif;
+            font-size: clamp(54px, 12vw, 88px);
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #c8d4da;
+            transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+        }
+
+        .option-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            border-color: var(--blue);
+            box-shadow: 0 11px 0 #b7c4cb;
+        }
+
+        .option-button:active:not(:disabled) {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #c8d4da;
+        }
+
+        .option-button.correct {
+            border-color: var(--green);
+            color: var(--green-dark);
+            background: #eaf8ef;
+            box-shadow: 0 8px 0 #9ad5b2;
+        }
+
+        .option-button.wrong {
+            border-color: var(--red);
+            color: #a43737;
+            background: #fff0f0;
+            box-shadow: 0 8px 0 #efb3b3;
+        }
+
+        .option-button:disabled {
+            cursor: default;
+        }
+
+        .feedback {
+            min-height: 34px;
+            margin: 18px 0 0;
+            font-size: clamp(18px, 3vw, 24px);
+            font-weight: 900;
+        }
+
+        .feedback.correct {
+            color: var(--green-dark);
+        }
+
+        .feedback.wrong {
+            color: #b23a3a;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            display: none;
+            padding: 22px;
+            place-items: center;
+            background: rgba(18, 26, 32, 0.58);
+        }
+
+        .modal-overlay.show {
+            display: grid;
+        }
+
+        .modal {
+            width: min(100%, 460px);
+            padding: clamp(24px, 6vw, 40px);
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+            text-align: center;
+        }
+
+        .modal h2 {
+            margin: 0 0 12px;
+            color: var(--green-dark);
+            font-size: clamp(28px, 6vw, 42px);
+            font-weight: 900;
+        }
+
+        .modal p {
+            margin: 0 0 26px;
+            color: var(--ink);
+            font-size: clamp(20px, 4vw, 28px);
+            font-weight: 900;
+        }
+
+        .home-button {
+            display: inline-flex;
+            min-height: 52px;
+            padding: 12px 22px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #ffffff;
+            background: var(--green);
+            font-size: 18px;
+            font-weight: 900;
+            text-decoration: none;
+            box-shadow: 0 6px 0 var(--green-dark);
+        }
+
+        @media (max-width: 620px) {
+            .hud {
+                align-items: stretch;
+                flex-direction: column;
             }
 
-            35% {
-                rotate: -3deg;
+            .hud-stats {
+                width: 100%;
             }
 
-            70% {
-                rotate: 3deg;
+            .hud-actions {
+                width: 100%;
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .quit-button {
+                width: 100%;
+            }
+
+            .stat {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .options-grid {
+                gap: 12px;
+            }
+
+            .option-button {
+                min-height: 112px;
             }
         }
     </style>
 </head>
 <body>
-<span class="deco one" aria-hidden="true">🌸</span>
-<span class="deco two" aria-hidden="true">🌻</span>
-<span class="deco three" aria-hidden="true">🍀</span>
-<span class="deco four" aria-hidden="true">🌷</span>
+<header class="hud" aria-label="ゲーム情報">
+    <a class="brand" href="/">KokoLang <span>(ココラン)</span></a>
+    <div class="hud-actions">
+        <div class="hud-stats">
+            <div class="stat">
+                <span class="stat-label">Score</span>
+                <span id="score" class="stat-value">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Stage</span>
+                <span id="stage" class="stat-value">1 / 10</span>
+            </div>
+        </div>
+        <button id="quitButton" class="quit-button" type="button">🏠 メインへ</button>
+    </div>
+</header>
 
 <main>
-    <header class="game-header">
-        <h1>母音の雑草ぬき 🌱</h1>
-        <p class="hint">お手本と同じ韓国語の母音をタップしよう！</p>
-    </header>
+    <section class="game-shell" aria-label="母音キャッチ！ゲーム">
+        <div class="lesson-panel">
+            <h1>母音キャッチ！</h1>
+            <p class="instruction">音を聞いて、ヒントに合う韓国語の母音を選ぼう。自動再生されない時はスピーカーを押してね。</p>
+            <div class="listen-card">
+                <button id="listenButton" class="listen-button" type="button" aria-label="韓国語の母音を聞く">
+                    <span aria-hidden="true">🔊</span>
+                    <span>聞く</span>
+                </button>
+                <div class="hint-box">
+                    <span id="pronunciationHint">オ (eo)</span>
+                </div>
+            </div>
+        </div>
 
-    <section class="target-wrap" aria-label="お手本の母音">
-        <div class="target-label">今日のお手本</div>
-        <div id="targetVowel" class="target">ㅓ</div>
+        <div class="options-panel">
+            <div id="optionsGrid" class="options-grid" aria-label="母音の選択肢"></div>
+            <p id="feedback" class="feedback" aria-live="polite"></p>
+        </div>
     </section>
-
-    <section id="garden" class="garden" aria-label="母音を選ぶ場所"></section>
 </main>
 
+<div id="clearModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearTitle">
+    <div class="modal">
+        <h2 id="clearTitle">ゲームクリア！🎉</h2>
+        <p id="finalScore">最終スコア：0点</p>
+        <a class="home-button" href="/">メイン画面に戻る 🏠</a>
+    </div>
+</div>
+
 <script>
-    const targetVowel = 'ㅓ';
-    const vowels = ['ㅓ', 'ㅗ', 'ㅏ', 'ㅜ', 'ㅡ', 'ㅣ', 'ㅓ', 'ㅏ', 'ㅗ', 'ㅓ', 'ㅜ', 'ㅣ'];
-    const garden = document.getElementById('garden');
-    const target = document.getElementById('targetVowel');
+    const questions = [
+        { target: 'ㅏ', hint: 'ア (a)', options: ['ㅏ', 'ㅓ', 'ㅗ', 'ㅜ'] },
+        { target: 'ㅓ', hint: 'オ (eo)', options: ['ㅓ', 'ㅗ', 'ㅏ', 'ㅡ'] },
+        { target: 'ㅗ', hint: 'オ (o)', options: ['ㅗ', 'ㅜ', 'ㅓ', 'ㅣ'] },
+        { target: 'ㅜ', hint: 'ウ (u)', options: ['ㅜ', 'ㅡ', 'ㅗ', 'ㅏ'] },
+        { target: 'ㅡ', hint: 'ウ (eu)', options: ['ㅡ', 'ㅜ', 'ㅣ', 'ㅓ'] },
+        { target: 'ㅣ', hint: 'イ (i)', options: ['ㅣ', 'ㅏ', 'ㅡ', 'ㅗ'] },
+        { target: 'ㅐ', hint: 'エ (ae)', options: ['ㅐ', 'ㅔ', 'ㅏ', 'ㅓ'] },
+        { target: 'ㅔ', hint: 'エ (e)', options: ['ㅔ', 'ㅐ', 'ㅗ', 'ㅜ'] },
+        { target: 'ㅑ', hint: 'ヤ (ya)', options: ['ㅑ', 'ㅕ', 'ㅏ', 'ㅓ'] },
+        { target: 'ㅕ', hint: 'ヨ (yeo)', options: ['ㅕ', 'ㅛ', 'ㅓ', 'ㅗ'] }
+    ];
 
-    target.textContent = targetVowel;
+    const scoreElement = document.getElementById('score');
+    const stageElement = document.getElementById('stage');
+    const hintElement = document.getElementById('pronunciationHint');
+    const listenButton = document.getElementById('listenButton');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const feedback = document.getElementById('feedback');
+    const clearModal = document.getElementById('clearModal');
+    const finalScore = document.getElementById('finalScore');
+    const quitButton = document.getElementById('quitButton');
 
-    vowels
-        .sort(() => Math.random() - 0.5)
-        .forEach((vowel) => {
+    let currentIndex = 0;
+    let score = 0;
+    let canChoose = true;
+
+    function shuffle(items) {
+        return [...items].sort(() => Math.random() - 0.5);
+    }
+
+    function speakCurrentVowel() {
+        const question = questions[currentIndex];
+
+        if (!('speechSynthesis' in window)) {
+            feedback.textContent = 'このブラウザは音声読み上げに対応していません。ヒントを見て選んでね。';
+            feedback.className = 'feedback wrong';
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(question.target);
+        utterance.lang = 'ko-KR';
+        utterance.rate = 0.78;
+        utterance.pitch = 1;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function renderQuestion() {
+        const question = questions[currentIndex];
+        canChoose = true;
+
+        scoreElement.textContent = String(score);
+        stageElement.textContent = `${currentIndex + 1} / ${questions.length}`;
+        hintElement.textContent = question.hint;
+        feedback.textContent = '';
+        feedback.className = 'feedback';
+        optionsGrid.innerHTML = '';
+
+        shuffle(question.options).forEach((option) => {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'vowel-button';
-            button.textContent = vowel;
-            button.setAttribute('aria-label', vowel + ' を選ぶ');
-            button.addEventListener('click', () => {
-                if (vowel === targetVowel) {
-                    alert('せいかい！きれいなお花が育ったよ！🌱');
-                } else {
-                    alert('あっ、雑草だったみたい！もう一度さがしてみよう！💦');
-                }
-            });
-            garden.appendChild(button);
+            button.className = 'option-button';
+            button.textContent = option;
+            button.setAttribute('aria-label', `${option} を選ぶ`);
+            button.addEventListener('click', () => chooseOption(option, button));
+            optionsGrid.appendChild(button);
         });
+    }
+
+    function chooseOption(option, button) {
+        if (!canChoose) {
+            return;
+        }
+
+        const question = questions[currentIndex];
+
+        if (option === question.target) {
+            canChoose = false;
+            score += 10;
+            scoreElement.textContent = String(score);
+            button.classList.add('correct');
+            disableOptions();
+            feedback.textContent = '정답(正解)!';
+            feedback.className = 'feedback correct';
+
+            window.setTimeout(() => {
+                currentIndex += 1;
+                if (currentIndex >= questions.length) {
+                    showClearModal();
+                } else {
+                    renderQuestion();
+                }
+            }, 850);
+        } else {
+            button.classList.add('wrong');
+            button.disabled = true;
+            feedback.textContent = '오답(不正解)! もう一度聞いて、正しい母音を選んでね。';
+            feedback.className = 'feedback wrong';
+        }
+    }
+
+    function disableOptions() {
+        optionsGrid.querySelectorAll('button').forEach((button) => {
+            button.disabled = true;
+        });
+    }
+
+    function showClearModal() {
+        stageElement.textContent = `${questions.length} / ${questions.length}`;
+        finalScore.textContent = `最終スコア：${score}点`;
+        clearModal.classList.add('show');
+    }
+
+    listenButton.addEventListener('click', speakCurrentVowel);
+    quitButton.addEventListener('click', () => {
+        if (window.confirm('ゲームをやめてメイン画面に戻りますか？')) {
+            window.location.href = '/';
+        }
+    });
+    renderQuestion();
 </script>
 </body>
 </html>
