@@ -71,6 +71,7 @@
             border: 4px solid #22a34a;
             border-radius: 999px;
             background: #ffffff;
+            overflow: hidden;
             box-shadow: 0 5px 0 rgba(50, 145, 63, 0.24);
         }
 
@@ -83,6 +84,7 @@
             font-family: inherit;
             font-size: 17px;
             font-weight: 900;
+            background: #ffffff;
             outline: none;
         }
 
@@ -236,8 +238,10 @@
             font-size: clamp(14px, 2vw, 18px);
         }
 
-        @media (max-width: 720px) {
+        @media (max-width: 768px) {
             .header-top {
+                width: 100%;
+                padding: calc(18px + env(safe-area-inset-top)) 18px 14px;
                 flex-direction: column;
                 align-items: stretch;
             }
@@ -248,16 +252,22 @@
 
             .search-box {
                 width: 100%;
+                border-radius: 999px;
             }
 
             .category-tabs {
-                overflow-x: auto;
+                width: 100%;
+                padding: 0 18px 16px;
+                flex-wrap: wrap;
+                overflow: visible;
+                gap: 15px;
                 justify-content: center;
-                padding-bottom: 14px;
             }
 
             .category-tab {
-                flex: 0 0 auto;
+                flex: 1 1 210px;
+                justify-content: center;
+                text-align: center;
             }
 
             .hero-strip {
@@ -300,13 +310,13 @@
                 <div class="game-icon" aria-hidden="true">🎧</div>
                 <p class="game-title">母音キャッチ！<span class="game-subtitle">(모음 캐치!)</span></p>
             </a>
-            <a class="game-card" href="#">
+            <a class="game-card" href="/game/mole">
                 <div class="game-icon" aria-hidden="true">🔨</div>
                 <p class="game-title">モグラたたき<span class="game-subtitle">(두더지 잡기)</span></p>
             </a>
-            <a class="game-card" href="#">
+            <a class="game-card" href="/game/pair">
                 <div class="game-icon" aria-hidden="true">🃏</div>
-                <p class="game-title">カード合わせ<span class="game-subtitle">(카드 짝맞추기)</span></p>
+                <p class="game-title">単語ペアリング！<span class="game-subtitle">(단어 페어링!)</span></p>
             </a>
         </div>
     </section>

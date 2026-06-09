@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KokoLang (ココラン) - 子音モグラたたき！</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@700;800;900&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ink: #273238;
+            --muted: #64727a;
+            --panel: #ffffff;
+            --line: #d9e1e6;
+            --green: #1f9d55;
+            --green-dark: #13723b;
+            --yellow: #f4c542;
+            --red: #e25555;
+            --blue: #2563eb;
+            --soil: #6f4528;
+            --soil-dark: #3f281c;
+            --soil-light: #9a6741;
+            --bg: #f5f7fa;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Zen Maru Gothic", "Nunito", "Jua", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 12% 18%, rgba(244, 197, 66, 0.2), transparent 28%),
+                radial-gradient(circle at 88% 16%, rgba(31, 157, 85, 0.14), transparent 24%),
+                var(--bg);
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .hud {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            min-height: 68px;
+            padding: 12px clamp(16px, 4vw, 42px);
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 24px rgba(39, 50, 56, 0.08);
+        }
+
+        .brand {
+            color: var(--green-dark);
+            font-size: clamp(19px, 3vw, 28px);
+            font-weight: 900;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .hud-stats,
+        .hud-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quit-button {
+            min-height: 48px;
+            padding: 10px 16px;
+            border: 2px solid #ffc5a6;
+            border-radius: 8px;
+            color: #8f3f22;
+            background: #fff0e8;
+            font-size: 17px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #f0aa82, 0 12px 20px rgba(194, 102, 64, 0.14);
+            transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+            white-space: nowrap;
+        }
+
+        .quit-button:hover {
+            filter: brightness(1.03);
+            transform: translateY(-2px);
+        }
+
+        .quit-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #f0aa82, 0 7px 14px rgba(194, 102, 64, 0.12);
+        }
+
+        .stat {
+            min-width: 112px;
+            padding: 8px 14px;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            text-align: left;
+        }
+
+        .stat-label {
+            display: block;
+            color: var(--muted);
+            font-family: "Nunito", sans-serif;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            display: block;
+            margin-top: 2px;
+            font-size: 20px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        main {
+            width: min(94vw, 920px);
+            margin: 0 auto;
+            padding: clamp(24px, 5vw, 48px) 0 56px;
+        }
+
+        .game-shell {
+            display: grid;
+            gap: 24px;
+        }
+
+        .lesson-panel,
+        .board-panel {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel);
+            box-shadow: 0 18px 44px rgba(39, 50, 56, 0.1);
+            text-align: center;
+        }
+
+        .lesson-panel {
+            padding: clamp(22px, 5vw, 42px);
+        }
+
+        h1 {
+            margin: 0 0 24px;
+            color: var(--ink);
+            font-size: clamp(27px, 5vw, 46px);
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .listen-card {
+            display: grid;
+            gap: 14px;
+            width: min(100%, 460px);
+            margin: 0 auto;
+        }
+
+        .listen-button {
+            display: inline-flex;
+            min-height: 92px;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border: 0;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: clamp(28px, 6vw, 44px);
+            font-weight: 900;
+            cursor: pointer;
+            background: var(--green);
+            box-shadow: 0 8px 0 var(--green-dark), 0 16px 26px rgba(31, 157, 85, 0.2);
+            transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+        }
+
+        .listen-button:hover {
+            filter: brightness(1.04);
+            transform: translateY(-2px);
+        }
+
+        .listen-button:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 var(--green-dark), 0 9px 18px rgba(31, 157, 85, 0.16);
+        }
+
+        .target-note {
+            min-height: 30px;
+            margin: 0;
+            color: var(--muted);
+            font-size: clamp(16px, 2.5vw, 20px);
+            font-weight: 900;
+        }
+
+        .board-panel {
+            position: relative;
+            overflow: hidden;
+            padding: clamp(18px, 4vw, 32px);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 251, 242, 0.96)),
+                #ffffff;
+        }
+
+        .mole-board {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(86px, 1fr));
+            gap: clamp(13px, 3vw, 24px);
+            width: min(100%, 650px);
+            margin: 0 auto;
+        }
+
+        .hole {
+            position: relative;
+            aspect-ratio: 1 / 0.82;
+            min-height: 96px;
+            overflow: hidden;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+        }
+
+        .hole::before {
+            content: "";
+            position: absolute;
+            left: 8%;
+            right: 8%;
+            bottom: 5%;
+            height: 42%;
+            border-radius: 50%;
+            background:
+                radial-gradient(ellipse at center, var(--soil-dark) 0%, #4c2f20 47%, var(--soil) 74%, var(--soil-light) 100%);
+            box-shadow:
+                inset 0 10px 12px rgba(0, 0, 0, 0.34),
+                0 7px 0 #5b351f,
+                0 14px 18px rgba(91, 53, 31, 0.2);
+        }
+
+        .mole {
+            position: absolute;
+            left: 50%;
+            bottom: 15%;
+            display: grid;
+            grid-template-rows: 1fr auto;
+            width: min(76%, 136px);
+            aspect-ratio: 1 / 1.05;
+            place-items: center;
+            padding: 8px 8px 10px;
+            border: 0;
+            border-radius: 8px;
+            color: #3b2418;
+            background: linear-gradient(180deg, #fff7df 0%, #ffe6a8 100%);
+            cursor: pointer;
+            font-family: "Jua", "Zen Maru Gothic", sans-serif;
+            font-weight: 900;
+            opacity: 0;
+            transform: translate(-50%, 100%) scale(0.9);
+            transition: filter 0.14s ease;
+            box-shadow: inset 0 -8px 0 rgba(219, 169, 95, 0.32), 0 10px 16px rgba(78, 45, 24, 0.18);
+        }
+
+        .mole::before,
+        .mole::after {
+            content: none;
+        }
+
+        .mole-face {
+            display: block;
+            width: clamp(58px, 11vw, 88px);
+            height: clamp(46px, 9vw, 70px);
+            line-height: 1;
+        }
+
+        .mole-face svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .mole-letter {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            width: 78%;
+            min-height: 38%;
+            place-items: center;
+            border: 3px solid #f7d28c;
+            border-radius: 8px;
+            background: #fff8db;
+            font-size: clamp(38px, 8.5vw, 70px);
+            line-height: 1;
+            box-shadow: 0 4px 0 #dba95f;
+        }
+
+        .hole.up .mole {
+            animation: mole-pop 0.42s cubic-bezier(0.2, 0.9, 0.2, 1.12) forwards;
+        }
+
+        .hole.hide .mole {
+            animation: mole-hide 0.28s ease-in forwards;
+        }
+
+        .mole:hover:not(:disabled) {
+            filter: brightness(1.06);
+        }
+
+        .mole:disabled {
+            cursor: default;
+        }
+
+        .mole.hit {
+            animation: mole-hit 0.34s ease-in forwards;
+        }
+
+        .mole.wrong-hit {
+            animation: mole-wrong-hit 0.34s ease;
+        }
+
+        .board-panel.shake {
+            animation: board-shake 0.34s ease;
+        }
+
+        .feedback {
+            min-height: 38px;
+            margin: 20px 0 0;
+            font-size: clamp(22px, 4vw, 32px);
+            font-weight: 900;
+        }
+
+        .feedback.correct {
+            color: var(--green-dark);
+            animation: feedback-pop 0.34s ease;
+        }
+
+        .feedback.wrong {
+            color: #b23a3a;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            display: none;
+            padding: 22px;
+            place-items: center;
+            background: rgba(18, 26, 32, 0.58);
+        }
+
+        .modal-overlay.show {
+            display: grid;
+        }
+
+        .modal {
+            width: min(100%, 460px);
+            padding: clamp(24px, 6vw, 40px);
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+            text-align: center;
+        }
+
+        .modal h2 {
+            margin: 0 0 12px;
+            color: var(--green-dark);
+            font-size: clamp(28px, 6vw, 42px);
+            font-weight: 900;
+        }
+
+        .modal p {
+            margin: 0 0 26px;
+            color: var(--ink);
+            font-size: clamp(20px, 4vw, 28px);
+            font-weight: 900;
+        }
+
+        .home-button {
+            display: inline-flex;
+            min-height: 52px;
+            padding: 12px 22px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #ffffff;
+            background: var(--green);
+            font-size: 18px;
+            font-weight: 900;
+            text-decoration: none;
+            box-shadow: 0 6px 0 var(--green-dark);
+        }
+
+        @keyframes mole-pop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 96%) scale(0.88);
+            }
+            68% {
+                opacity: 1;
+                transform: translate(-50%, -6%) scale(1.02);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1);
+            }
+        }
+
+        @keyframes mole-hide {
+            from {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translate(-50%, 100%) scale(0.9);
+            }
+        }
+
+        @keyframes mole-hit {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1);
+            }
+            45% {
+                opacity: 1;
+                transform: translate(-50%, 10%) rotate(-7deg) scale(0.96);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, 104%) rotate(0deg) scale(0.88);
+            }
+        }
+
+        @keyframes mole-wrong-hit {
+            0%, 100% {
+                transform: translate(-50%, 0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translate(-56%, 0) rotate(-5deg) scale(1);
+            }
+            50% {
+                transform: translate(-44%, 0) rotate(5deg) scale(1);
+            }
+            75% {
+                transform: translate(-54%, 0) rotate(-3deg) scale(1);
+            }
+        }
+
+        @keyframes board-shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            22% {
+                transform: translateX(-8px);
+            }
+            44% {
+                transform: translateX(8px);
+            }
+            66% {
+                transform: translateX(-5px);
+            }
+            88% {
+                transform: translateX(4px);
+            }
+        }
+
+        @keyframes feedback-pop {
+            0% {
+                transform: scale(0.88);
+            }
+            70% {
+                transform: scale(1.08);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 620px) {
+            .hud {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .hud-stats {
+                width: 100%;
+            }
+
+            .hud-actions {
+                width: 100%;
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .quit-button {
+                width: 100%;
+            }
+
+            .stat {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .mole-board {
+                gap: 11px;
+                grid-template-columns: repeat(3, minmax(78px, 1fr));
+            }
+
+            .hole {
+                min-height: 86px;
+            }
+
+            .mole-letter {
+                border-width: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="hud" aria-label="ゲーム情報">
+    <a class="brand" href="/">KokoLang <span>(ココラン)</span></a>
+    <div class="hud-actions">
+        <div class="hud-stats">
+            <div class="stat">
+                <span class="stat-label">Score</span>
+                <span id="score" class="stat-value">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Stage</span>
+                <span id="stage" class="stat-value">1 / 10</span>
+            </div>
+        </div>
+        <button id="quitButton" class="quit-button" type="button">🏠 メインへ</button>
+    </div>
+</header>
+
+<main>
+    <section class="game-shell" aria-label="子音モグラたたき！ゲーム">
+        <div class="lesson-panel">
+            <h1>子音モグラたたき！🔨</h1>
+            <div class="listen-card">
+                <button id="listenButton" class="listen-button" type="button" aria-label="韓国語の子音を聞く">
+                    <span aria-hidden="true">🔊</span>
+                    <span>聞く</span>
+                </button>
+                <p id="targetNote" class="target-note" aria-live="polite">音を聞いて、同じ文字のモグラをたたこう。</p>
+            </div>
+        </div>
+
+        <div id="boardPanel" class="board-panel">
+            <div id="moleBoard" class="mole-board" aria-label="モグラの穴"></div>
+            <p id="feedback" class="feedback" aria-live="polite"></p>
+        </div>
+    </section>
+</main>
+
+<div id="clearModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearTitle">
+    <div class="modal">
+        <h2 id="clearTitle">ゲームクリア！🎉</h2>
+        <p id="finalScore">最終スコア：0点</p>
+        <a class="home-button" href="/">メイン画面に戻る 🏠</a>
+    </div>
+</div>
+
+<script>
+    const questionSets = [
+        ['가', '카', '까'],
+        ['다', '타', '따'],
+        ['바', '파', '빠'],
+        ['사', '싸', '사'],
+        ['자', '차', '짜']
+    ];
+
+    const totalStages = 10;
+    const scoreElement = document.getElementById('score');
+    const stageElement = document.getElementById('stage');
+    const targetNote = document.getElementById('targetNote');
+    const listenButton = document.getElementById('listenButton');
+    const moleBoard = document.getElementById('moleBoard');
+    const boardPanel = document.getElementById('boardPanel');
+    const feedback = document.getElementById('feedback');
+    const clearModal = document.getElementById('clearModal');
+    const finalScore = document.getElementById('finalScore');
+    const quitButton = document.getElementById('quitButton');
+
+    let currentStage = 1;
+    let score = 0;
+    let currentQuestion = null;
+    let canHit = true;
+    let molesVisible = false;
+    let koreanVoice = null;
+    let currentUtterance = null;
+
+    function shuffle(items) {
+        return [...items].sort(() => Math.random() - 0.5);
+    }
+
+    function pickRandom(items) {
+        return items[Math.floor(Math.random() * items.length)];
+    }
+
+    function pickHoleIndexes() {
+        return shuffle(Array.from({ length: 9 }, (_, index) => index)).slice(0, 3);
+    }
+
+    function refreshKoreanVoice() {
+        if (!('speechSynthesis' in window)) {
+            return;
+        }
+
+        const voices = window.speechSynthesis.getVoices();
+        const femaleVoiceNames = ['yuna', 'flo', 'sandy', 'shelley', 'grandma', 'sunhi', 'sora', 'seoyeon', 'seohyeon', 'heami', 'jiyun'];
+        const koreanVoices = voices.filter((voice) => voice.lang
+            && voice.lang.toLowerCase().replace('_', '-').startsWith('ko'));
+
+        koreanVoice = femaleVoiceNames
+            .map((name) => koreanVoices.find((voice) => voice.name
+                && voice.name.toLowerCase().includes(name)))
+            .find(Boolean)
+            || koreanVoices.find((voice) => voice.name && /female|여성|한국의/i.test(voice.name))
+            || null;
+    }
+
+    function speakCurrentTarget() {
+        if (!currentQuestion) {
+            return;
+        }
+
+        if (!('speechSynthesis' in window)) {
+            feedback.textContent = 'このブラウザは音声読み上げに対応していません。文字を見て選んでね。';
+            feedback.className = 'feedback wrong';
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+        refreshKoreanVoice();
+        if (!koreanVoice) {
+            feedback.textContent = '女性の韓国語音声が見つかりません。端末の音声設定で「Yuna」を追加してね。';
+            feedback.className = 'feedback wrong';
+            return;
+        }
+
+        currentUtterance = new SpeechSynthesisUtterance(currentQuestion.target);
+        currentUtterance.lang = 'ko-KR';
+        currentUtterance.rate = 0.85;
+        currentUtterance.pitch = 1.0;
+        currentUtterance.volume = 1;
+        currentUtterance.voice = koreanVoice;
+        currentUtterance.onstart = revealMoles;
+        currentUtterance.onerror = () => {
+            feedback.textContent = '音声を再生できませんでした。もう一度「聞く」を押してね。';
+            feedback.className = 'feedback wrong';
+        };
+        currentUtterance.onend = () => {
+            currentUtterance = null;
+        };
+        window.speechSynthesis.resume();
+        window.speechSynthesis.speak(currentUtterance);
+    }
+
+    function makeQuestion() {
+        const set = pickRandom(questionSets);
+        return {
+            set,
+            target: pickRandom(set),
+            holeIndexes: pickHoleIndexes()
+        };
+    }
+
+    function renderStage() {
+        currentQuestion = makeQuestion();
+        canHit = true;
+        molesVisible = false;
+
+        scoreElement.textContent = String(score);
+        stageElement.textContent = `${currentStage} / ${totalStages}`;
+        targetNote.textContent = '音を聞いて、同じ文字のモグラをたたこう。';
+        feedback.textContent = '';
+        feedback.className = 'feedback';
+        moleBoard.innerHTML = '';
+
+        for (let index = 0; index < 9; index += 1) {
+            const hole = document.createElement('div');
+            hole.className = 'hole';
+            moleBoard.appendChild(hole);
+        }
+    }
+
+    function revealMoles() {
+        if (molesVisible) {
+            return;
+        }
+
+        molesVisible = true;
+        targetNote.textContent = '聞こえた文字を持っているモグラをたたこう。';
+
+        const letters = shuffle(currentQuestion.set);
+        const holes = moleBoard.querySelectorAll('.hole');
+
+        currentQuestion.holeIndexes.forEach((holeIndex, molePosition) => {
+            const hole = holes[holeIndex];
+            const letter = letters[molePosition];
+            const mole = document.createElement('button');
+            mole.type = 'button';
+            mole.className = 'mole';
+            mole.setAttribute('aria-label', `${letter} のモグラをたたく`);
+            mole.dataset.letter = letter;
+
+            const face = document.createElement('span');
+            face.className = 'mole-face';
+            face.innerHTML = `
+                <svg viewBox="0 0 96 72" role="img" aria-label="두더지">
+                    <path d="M18 64 C18 32 31 16 48 16 C65 16 78 32 78 64 Z" fill="#805234"/>
+                    <ellipse cx="48" cy="44" rx="25" ry="22" fill="#9f6742"/>
+                    <ellipse cx="48" cy="48" rx="17" ry="12" fill="#d5a07a"/>
+                    <circle cx="38" cy="38" r="4" fill="#24150f"/>
+                    <circle cx="56" cy="38" r="4" fill="#24150f"/>
+                    <circle cx="37" cy="37" r="1.4" fill="#ffffff"/>
+                    <circle cx="55" cy="37" r="1.4" fill="#ffffff"/>
+                    <ellipse cx="48" cy="45" rx="6" ry="4.5" fill="#f0a0a6"/>
+                    <path d="M39 54 Q48 60 57 54" fill="none" stroke="#4a2a1c" stroke-width="3" stroke-linecap="round"/>
+                    <ellipse cx="31" cy="60" rx="8" ry="5" fill="#684025"/>
+                    <ellipse cx="65" cy="60" rx="8" ry="5" fill="#684025"/>
+                </svg>`;
+
+            const label = document.createElement('span');
+            label.className = 'mole-letter';
+            label.textContent = letter;
+            mole.appendChild(face);
+            mole.appendChild(label);
+
+            mole.addEventListener('click', () => hitMole(mole));
+            hole.appendChild(mole);
+            window.setTimeout(() => hole.classList.add('up'), 80 + (molePosition * 90));
+        });
+    }
+
+    function hitMole(mole) {
+        if (!canHit || !molesVisible) {
+            return;
+        }
+
+        const chosen = mole.dataset.letter;
+
+        if (chosen === currentQuestion.target) {
+            canHit = false;
+            score += 10;
+            scoreElement.textContent = String(score);
+            feedback.textContent = '正解！';
+            feedback.className = 'feedback correct';
+            hideMoles(mole);
+
+            window.setTimeout(() => {
+                currentStage += 1;
+                if (currentStage > totalStages) {
+                    showClearModal();
+                } else {
+                    renderStage();
+                }
+            }, 850);
+        } else {
+            feedback.textContent = '不正解！💦';
+            feedback.className = 'feedback wrong';
+            mole.classList.remove('wrong-hit');
+            boardPanel.classList.remove('shake');
+            void mole.offsetWidth;
+            void boardPanel.offsetWidth;
+            mole.classList.add('wrong-hit');
+            boardPanel.classList.add('shake');
+        }
+    }
+
+    function hideMoles(hitMoleButton) {
+        moleBoard.querySelectorAll('.mole').forEach((mole) => {
+            mole.disabled = true;
+            if (mole === hitMoleButton) {
+                mole.classList.add('hit');
+            } else {
+                mole.closest('.hole').classList.add('hide');
+            }
+        });
+    }
+
+    function showClearModal() {
+        stageElement.textContent = `${totalStages} / ${totalStages}`;
+        finalScore.textContent = `最終スコア：${score}点`;
+        clearModal.classList.add('show');
+    }
+
+    listenButton.addEventListener('click', speakCurrentTarget);
+    if ('speechSynthesis' in window) {
+        refreshKoreanVoice();
+        window.speechSynthesis.addEventListener('voiceschanged', refreshKoreanVoice);
+    }
+    quitButton.addEventListener('click', () => {
+        if (window.confirm('ゲームをやめてメイン画面に戻りますか？')) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                currentUtterance = null;
+            }
+            window.location.href = '/';
+        }
+    });
+    renderStage();
+</script>
+</body>
+</html>

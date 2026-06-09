@@ -427,8 +427,8 @@
         { target: 'ㅜ', hint: 'ウ (u)', options: ['ㅜ', 'ㅡ', 'ㅗ', 'ㅏ'] },
         { target: 'ㅡ', hint: 'ウ (eu)', options: ['ㅡ', 'ㅜ', 'ㅣ', 'ㅓ'] },
         { target: 'ㅣ', hint: 'イ (i)', options: ['ㅣ', 'ㅏ', 'ㅡ', 'ㅗ'] },
-        { target: 'ㅐ', hint: 'エ (ae)', options: ['ㅐ', 'ㅔ', 'ㅏ', 'ㅓ'] },
-        { target: 'ㅔ', hint: 'エ (e)', options: ['ㅔ', 'ㅐ', 'ㅗ', 'ㅜ'] },
+        { target: 'ㅐ', hint: 'エ (ae)', options: ['ㅐ', 'ㅏ', 'ㅓ', 'ㅗ'] },
+        { target: 'ㅔ', hint: 'エ (e)', options: ['ㅔ', 'ㅗ', 'ㅜ', 'ㅣ'] },
         { target: 'ㅑ', hint: 'ヤ (ya)', options: ['ㅑ', 'ㅕ', 'ㅏ', 'ㅓ'] },
         { target: 'ㅕ', hint: 'ヨ (yeo)', options: ['ㅕ', 'ㅛ', 'ㅓ', 'ㅗ'] }
     ];
@@ -446,9 +446,27 @@
     let currentIndex = 0;
     let score = 0;
     let canChoose = true;
+    let koreanVoice = null;
 
     function shuffle(items) {
         return [...items].sort(() => Math.random() - 0.5);
+    }
+
+    function refreshKoreanVoice() {
+        if (!('speechSynthesis' in window)) {
+            return;
+        }
+
+        const voices = window.speechSynthesis.getVoices();
+        const femaleVoiceNames = ['yuna', 'flo', 'sandy', 'shelley', 'grandma', 'sunhi', 'sora', 'seoyeon', 'seohyeon', 'heami', 'jiyun'];
+        const koreanVoices = voices.filter((voice) => voice.lang
+            && voice.lang.toLowerCase().replace('_', '-').startsWith('ko'));
+
+        koreanVoice = femaleVoiceNames
+            .map((name) => koreanVoices.find((voice) => voice.name && voice.name.toLowerCase().includes(name)))
+            .find(Boolean)
+            || koreanVoices.find((voice) => voice.name && /female|여성|한국의/i.test(voice.name))
+            || null;
     }
 
     function speakCurrentVowel() {
@@ -461,10 +479,18 @@
         }
 
         window.speechSynthesis.cancel();
+        refreshKoreanVoice();
+        if (!koreanVoice) {
+            feedback.textContent = '女性の韓国語音声が見つかりません。端末の音声設定で「Yuna」を追加してね。';
+            feedback.className = 'feedback wrong';
+            return;
+        }
+
         const utterance = new SpeechSynthesisUtterance(question.target);
         utterance.lang = 'ko-KR';
-        utterance.rate = 0.78;
-        utterance.pitch = 1;
+        utterance.rate = 0.58;
+        utterance.pitch = 1.05;
+        utterance.voice = koreanVoice;
         window.speechSynthesis.speak(utterance);
     }
 
@@ -535,6 +561,10 @@
     }
 
     listenButton.addEventListener('click', speakCurrentVowel);
+    if ('speechSynthesis' in window) {
+        refreshKoreanVoice();
+        window.speechSynthesis.addEventListener('voiceschanged', refreshKoreanVoice);
+    }
     quitButton.addEventListener('click', () => {
         if (window.confirm('ゲームをやめてメイン画面に戻りますか？')) {
             window.location.href = '/';

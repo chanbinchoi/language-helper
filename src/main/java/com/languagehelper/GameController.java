@@ -15,4 +15,14 @@ public class GameController {
     public String vowelGame() {
         return "vowel-game";
     }
+
+    @GetMapping("/game/mole")
+    public String moleGame() {
+        return "mole-game";
+    }
+
+    @GetMapping("/game/pair")
+    public String pairGame() {
+        return "pair-game";
+    }
 }

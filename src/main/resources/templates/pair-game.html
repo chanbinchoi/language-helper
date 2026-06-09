@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KokoLang (ココラン) - 単語ペアリング！</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@700;800;900&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ink: #273238;
+            --muted: #64727a;
+            --panel: #ffffff;
+            --line: #d9e1e6;
+            --green: #1f9d55;
+            --green-dark: #13723b;
+            --yellow: #f4c542;
+            --pink: #ee7da5;
+            --bg: #f5f7fa;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Zen Maru Gothic", "Nunito", "Jua", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 12% 18%, rgba(244, 197, 66, 0.2), transparent 28%),
+                radial-gradient(circle at 88% 16%, rgba(238, 125, 165, 0.16), transparent 24%),
+                var(--bg);
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .hud {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            min-height: 68px;
+            padding: 12px clamp(16px, 4vw, 42px);
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 24px rgba(39, 50, 56, 0.08);
+        }
+
+        .brand {
+            color: var(--green-dark);
+            font-size: clamp(19px, 3vw, 28px);
+            font-weight: 900;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .hud-stats,
+        .hud-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat {
+            min-width: 112px;
+            padding: 8px 14px;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            text-align: left;
+        }
+
+        .stat-label {
+            display: block;
+            color: var(--muted);
+            font-family: "Nunito", sans-serif;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            display: block;
+            margin-top: 2px;
+            font-size: 20px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .quit-button {
+            min-height: 48px;
+            padding: 10px 16px;
+            border: 2px solid #ffc5a6;
+            border-radius: 8px;
+            color: #8f3f22;
+            background: #fff0e8;
+            font-size: 17px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #f0aa82, 0 12px 20px rgba(194, 102, 64, 0.14);
+            transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+            white-space: nowrap;
+        }
+
+        .quit-button:hover {
+            filter: brightness(1.03);
+            transform: translateY(-2px);
+        }
+
+        .quit-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #f0aa82, 0 7px 14px rgba(194, 102, 64, 0.12);
+        }
+
+        main {
+            width: min(94vw, 820px);
+            margin: 0 auto;
+            padding: clamp(24px, 5vw, 48px) 0 56px;
+        }
+
+        .game-panel {
+            padding: clamp(20px, 4vw, 38px);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: var(--panel);
+            box-shadow: 0 18px 44px rgba(39, 50, 56, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--ink);
+            font-size: clamp(28px, 5vw, 46px);
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            margin: 8px 0 16px;
+            color: var(--muted);
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 800;
+        }
+
+        .mode-selector {
+            display: inline-flex;
+            margin: 0 0 clamp(20px, 4vw, 32px);
+            padding: 5px;
+            gap: 5px;
+            border: 2px solid #d8e4dc;
+            border-radius: 999px;
+            background: #eef6f0;
+        }
+
+        .mode-button {
+            min-height: 42px;
+            padding: 8px 16px;
+            border: 0;
+            border-radius: 999px;
+            color: #5c6b62;
+            background: transparent;
+            font-size: clamp(13px, 2vw, 16px);
+            font-weight: 900;
+            cursor: pointer;
+            transition: color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .mode-button:hover {
+            color: var(--green-dark);
+        }
+
+        .mode-button.active {
+            color: #ffffff;
+            background: var(--green);
+            box-shadow: 0 4px 0 var(--green-dark);
+        }
+
+        .mode-button:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, 0.4);
+            outline-offset: 2px;
+        }
+
+        .game-board {
+            display: grid;
+            width: min(100%, 680px);
+            margin: 0 auto;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: clamp(8px, 1.8vw, 16px);
+        }
+
+        .memory-card {
+            position: relative;
+            min-width: 0;
+            padding: 0;
+            border: 0;
+            aspect-ratio: 4 / 5;
+            background: transparent;
+            cursor: pointer;
+            perspective: 900px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .memory-card:focus-visible {
+            outline: 4px solid rgba(37, 99, 235, 0.48);
+            outline-offset: 4px;
+            border-radius: 15px;
+        }
+
+        .card-inner {
+            position: absolute;
+            inset: 0;
+            border-radius: 15px;
+            box-shadow: 0 7px 0 #d7a534, 0 12px 20px rgba(81, 61, 45, 0.18);
+            transform-style: preserve-3d;
+            transition: transform 0.55s cubic-bezier(0.2, 0.75, 0.25, 1.12), box-shadow 0.2s ease;
+        }
+
+        .memory-card:hover:not(.flipped):not(.matched) .card-inner {
+            box-shadow: 0 9px 0 #d7a534, 0 15px 24px rgba(81, 61, 45, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .memory-card.flipped .card-inner,
+        .memory-card.matched .card-inner {
+            transform: rotateY(180deg);
+            box-shadow: 0 7px 0 #cbd5db, 0 12px 20px rgba(39, 50, 56, 0.13);
+        }
+
+        .card-face {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            padding: 8px;
+            place-items: center;
+            overflow: hidden;
+            border: 4px solid #ffffff;
+            border-radius: 15px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .card-back {
+            z-index: 1;
+            color: #ffffff;
+            background:
+                radial-gradient(circle at 22% 22%, rgba(255, 255, 255, 0.25) 0 7%, transparent 8%),
+                radial-gradient(circle at 78% 76%, rgba(255, 255, 255, 0.22) 0 8%, transparent 9%),
+                linear-gradient(145deg, #35b765, #188647);
+        }
+
+        .card-back::before,
+        .card-back::after {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: clamp(18px, 4vw, 36px);
+            content: "🌱";
+        }
+
+        .card-back::before {
+            top: 6%;
+            left: 8%;
+            transform: rotate(-18deg);
+        }
+
+        .card-back::after {
+            right: 7%;
+            bottom: 4%;
+            transform: rotate(16deg);
+        }
+
+        .back-logo {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            width: clamp(44px, 8vw, 72px);
+            aspect-ratio: 1;
+            place-items: center;
+            border: 3px solid rgba(255, 255, 255, 0.75);
+            border-radius: 50%;
+            font-size: clamp(24px, 5vw, 42px);
+            background: rgba(255, 255, 255, 0.16);
+            text-shadow: 0 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .card-front {
+            z-index: 2;
+            opacity: 0;
+            visibility: hidden;
+            border-color: #e8edf0;
+            color: var(--ink);
+            background: #ffffff;
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.flipped .card-back,
+        .memory-card.matched .card-back {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .memory-card.flipped .card-front,
+        .memory-card.matched .card-front {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .card-content {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            overflow: hidden;
+            font-size: clamp(28px, 6vw, 55px);
+            font-weight: 900;
+            line-height: 1.1;
+            word-break: keep-all;
+        }
+
+        .memory-card[data-card-type="word"] .card-content {
+            display: grid;
+            gap: 5px;
+            color: #2d6d45;
+            font-size: clamp(19px, 4.2vw, 36px);
+        }
+
+        .korean-word,
+        .japanese-meaning,
+        .pronunciation-guide {
+            display: block;
+            max-width: 100%;
+            overflow: hidden;
+            word-break: keep-all;
+        }
+
+        .japanese-meaning,
+        .pronunciation-guide {
+            display: none;
+            color: #666666;
+            font-size: clamp(11px, 2.2vw, 16px);
+            font-weight: 800;
+            line-height: 1.15;
+            text-overflow: clip;
+            white-space: nowrap;
+        }
+
+        .japanese-meaning {
+            font-size: clamp(12px, 2.5vw, 18px);
+        }
+
+        body.easy-mode .japanese-meaning,
+        body.practice-mode .japanese-meaning,
+        body.practice-mode .pronunciation-guide {
+            display: block;
+        }
+
+        .memory-card.matched {
+            cursor: default;
+        }
+
+        .memory-card.matched .card-inner {
+            animation: match-pop 0.62s ease;
+            box-shadow: 0 0 0 4px #70ce8e, 0 8px 0 #3ba860, 0 16px 26px rgba(31, 157, 85, 0.22);
+        }
+
+        .memory-card.matched .card-front::after {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            color: var(--green);
+            font-size: clamp(17px, 3vw, 27px);
+            content: "✓";
+        }
+
+        .status-message {
+            min-height: 34px;
+            margin: 20px 0 0;
+            color: var(--muted);
+            font-size: clamp(17px, 3vw, 23px);
+            font-weight: 900;
+        }
+
+        .status-message.success {
+            color: var(--green-dark);
+        }
+
+        .status-message.miss {
+            color: #b23a3a;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            display: none;
+            padding: 22px;
+            place-items: center;
+            background: rgba(18, 26, 32, 0.58);
+        }
+
+        .modal-overlay.show {
+            display: grid;
+        }
+
+        .modal {
+            width: min(100%, 460px);
+            padding: clamp(24px, 6vw, 40px);
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+            text-align: center;
+        }
+
+        .modal h2 {
+            margin: 0 0 12px;
+            color: var(--green-dark);
+            font-size: clamp(28px, 6vw, 42px);
+            font-weight: 900;
+        }
+
+        .modal p {
+            margin: 0 0 26px;
+            color: var(--ink);
+            font-size: clamp(20px, 4vw, 28px);
+            font-weight: 900;
+        }
+
+        .home-button {
+            display: inline-flex;
+            min-height: 52px;
+            padding: 12px 22px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #ffffff;
+            background: var(--green);
+            font-size: 18px;
+            font-weight: 900;
+            text-decoration: none;
+            box-shadow: 0 6px 0 var(--green-dark);
+        }
+
+        @keyframes match-pop {
+            0%, 100% {
+                transform: rotateY(180deg) scale(1);
+            }
+            45% {
+                transform: rotateY(180deg) scale(1.1) rotateZ(-2deg);
+            }
+            70% {
+                transform: rotateY(180deg) scale(1.04) rotateZ(2deg);
+            }
+        }
+
+        @media (max-width: 620px) {
+            .hud {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .hud-actions {
+                width: 100%;
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .hud-stats {
+                width: 100%;
+            }
+
+            .stat {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .quit-button {
+                width: 100%;
+            }
+
+            .game-panel {
+                padding: 18px 12px 22px;
+            }
+
+            .mode-selector {
+                display: grid;
+                width: 100%;
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .mode-button {
+                padding-inline: 8px;
+                font-size: 12px;
+            }
+
+            .card-face {
+                border-width: 3px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card-inner,
+            .quit-button {
+                transition-duration: 0.01ms;
+            }
+
+            .memory-card.matched .card-inner {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="hud" aria-label="ゲーム情報">
+    <a class="brand" href="/">KokoLang <span>(ココラン)</span></a>
+    <div class="hud-actions">
+        <div class="hud-stats">
+            <div class="stat">
+                <span class="stat-label">Score</span>
+                <span id="score" class="stat-value">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Pairs</span>
+                <span id="matchedPairs" class="stat-value">0 / 8</span>
+            </div>
+        </div>
+        <button id="quitButton" class="quit-button" type="button">🏠 メインへ</button>
+    </div>
+</header>
+
+<main>
+    <section class="game-panel" aria-labelledby="gameTitle">
+        <h1 id="gameTitle">単語ペアリング！🃏</h1>
+        <p class="subtitle">韓国語の単語と同じ意味の絵文字をペアにしよう！</p>
+        <div class="mode-selector" role="group" aria-label="難易度を選ぶ">
+            <button id="normalModeButton" class="mode-button active" type="button" aria-pressed="true">ノーマル</button>
+            <button id="easyModeButton" class="mode-button" type="button" aria-pressed="false">かんたん</button>
+            <button id="practiceModeButton" class="mode-button" type="button" aria-pressed="false">練習モード</button>
+        </div>
+        <div id="gameBoard" class="game-board" aria-label="単語ペアリングのカード"></div>
+        <p id="statusMessage" class="status-message" aria-live="polite">カードを2枚めくって、ペアを見つけよう。</p>
+    </section>
+</main>
+
+<div id="clearModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearTitle" aria-hidden="true">
+    <div class="modal">
+        <h2 id="clearTitle">ゲームクリア！🎉</h2>
+        <p id="finalScore">最終スコア：80点</p>
+        <a class="home-button" href="/">メイン画面に戻る 🏠</a>
+    </div>
+</div>
+
+<script>
+    const wordPairs = [
+        { word: '사과', japanese: 'りんご', pronunciation: 'サグァ', emoji: '🍎' },
+        { word: '바나나', japanese: 'バナナ', pronunciation: 'バナナ', emoji: '🍌' },
+        { word: '딸기', japanese: 'いちご', pronunciation: 'タルギ', emoji: '🍓' },
+        { word: '포도', japanese: 'ぶどう', pronunciation: 'ポド', emoji: '🍇' },
+        { word: '강아지', japanese: 'いぬ', pronunciation: 'カンアジ', emoji: '🐶' },
+        { word: '고양이', japanese: 'ねこ', pronunciation: 'コヤンイ', emoji: '🐱' },
+        { word: '토끼', japanese: 'うさぎ', pronunciation: 'トッキ', emoji: '🐰' },
+        { word: '돼지', japanese: 'ぶた', pronunciation: 'テジ', emoji: '🐷' }
+    ];
+
+    const scoreElement = document.getElementById('score');
+    const matchedPairsElement = document.getElementById('matchedPairs');
+    const gameBoard = document.getElementById('gameBoard');
+    const statusMessage = document.getElementById('statusMessage');
+    const normalModeButton = document.getElementById('normalModeButton');
+    const easyModeButton = document.getElementById('easyModeButton');
+    const practiceModeButton = document.getElementById('practiceModeButton');
+    const clearModal = document.getElementById('clearModal');
+    const finalScore = document.getElementById('finalScore');
+    const quitButton = document.getElementById('quitButton');
+
+    let firstCard = null;
+    let secondCard = null;
+    let boardLocked = false;
+    let score = 0;
+    let matchedPairs = 0;
+    let koreanVoice = null;
+    let currentUtterance = null;
+    let currentMode = 'normal';
+
+    function shuffle(items) {
+        const shuffled = [...items];
+
+        for (let index = shuffled.length - 1; index > 0; index -= 1) {
+            const randomIndex = Math.floor(Math.random() * (index + 1));
+            [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+        }
+
+        return shuffled;
+    }
+
+    function createDeck() {
+        return wordPairs.flatMap((pair, pairId) => [
+            {
+                pairId,
+                type: 'word',
+                value: pair.word,
+                japanese: pair.japanese,
+                pronunciation: pair.pronunciation,
+                spokenWord: pair.word
+            },
+            { pairId, type: 'emoji', value: pair.emoji, spokenWord: pair.word }
+        ]);
+    }
+
+    function createCard(cardData, cardIndex) {
+        const card = document.createElement('button');
+        const hiddenLabel = `${cardIndex + 1}番の伏せたカード`;
+        card.type = 'button';
+        card.className = 'memory-card';
+        card.dataset.pairId = String(cardData.pairId);
+        card.dataset.cardType = cardData.type;
+        card.dataset.spokenWord = cardData.spokenWord;
+        card.dataset.faceLabel = cardData.value;
+        card.dataset.hiddenLabel = hiddenLabel;
+        card.setAttribute('aria-label', hiddenLabel);
+        card.setAttribute('aria-pressed', 'false');
+
+        const cardInner = document.createElement('span');
+        cardInner.className = 'card-inner';
+
+        const cardBack = document.createElement('span');
+        cardBack.className = 'card-face card-back';
+        cardBack.setAttribute('aria-hidden', 'true');
+
+        const backLogo = document.createElement('span');
+        backLogo.className = 'back-logo';
+        backLogo.textContent = '🌱';
+        cardBack.appendChild(backLogo);
+
+        const cardFront = document.createElement('span');
+        cardFront.className = 'card-face card-front';
+        cardFront.setAttribute('aria-hidden', 'true');
+
+        const cardContent = document.createElement('span');
+        cardContent.className = 'card-content';
+
+        if (cardData.type === 'word') {
+            const koreanWord = document.createElement('span');
+            koreanWord.className = 'korean-word';
+            koreanWord.textContent = cardData.value;
+
+            const japaneseMeaning = document.createElement('span');
+            japaneseMeaning.className = 'japanese-meaning';
+            japaneseMeaning.textContent = cardData.japanese;
+
+            const pronunciationGuide = document.createElement('span');
+            pronunciationGuide.className = 'pronunciation-guide';
+            pronunciationGuide.textContent = `(${cardData.pronunciation})`;
+
+            cardContent.appendChild(koreanWord);
+            cardContent.appendChild(japaneseMeaning);
+            cardContent.appendChild(pronunciationGuide);
+        } else {
+            cardContent.textContent = cardData.value;
+        }
+
+        cardFront.appendChild(cardContent);
+
+        cardInner.appendChild(cardBack);
+        cardInner.appendChild(cardFront);
+        card.appendChild(cardInner);
+        card.addEventListener('click', () => flipCard(card));
+
+        return card;
+    }
+
+    function renderBoard() {
+        gameBoard.innerHTML = '';
+        shuffle(createDeck()).forEach((cardData, index) => {
+            gameBoard.appendChild(createCard(cardData, index));
+        });
+    }
+
+    function setGameMode(mode) {
+        const isEasyMode = mode === 'easy';
+        const isPracticeMode = mode === 'practice';
+
+        currentMode = mode;
+        document.body.classList.toggle('easy-mode', isEasyMode);
+        document.body.classList.toggle('practice-mode', isPracticeMode);
+        normalModeButton.classList.toggle('active', mode === 'normal');
+        easyModeButton.classList.toggle('active', isEasyMode);
+        practiceModeButton.classList.toggle('active', isPracticeMode);
+        normalModeButton.setAttribute('aria-pressed', String(mode === 'normal'));
+        easyModeButton.setAttribute('aria-pressed', String(isEasyMode));
+        practiceModeButton.setAttribute('aria-pressed', String(isPracticeMode));
+
+        if (isEasyMode) {
+            statusMessage.textContent = 'かんたん：韓国語の下に日本語の意味が表示されます。';
+        } else if (isPracticeMode) {
+            statusMessage.textContent = '練習モード：日本語の意味とカタカナの読み方を見ながら、韓国語の音声を聞こう。';
+        } else {
+            statusMessage.textContent = 'カードを2枚めくって、ペアを見つけよう。';
+        }
+
+        if (!isPracticeMode && 'speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            currentUtterance = null;
+        }
+        statusMessage.className = 'status-message';
+    }
+
+    function refreshKoreanVoice() {
+        if (!('speechSynthesis' in window)) {
+            return;
+        }
+
+        const voices = window.speechSynthesis.getVoices();
+        const femaleVoiceNames = ['yuna', 'flo', 'sandy', 'shelley', 'grandma', 'sunhi', 'sora', 'seoyeon', 'seohyeon', 'heami', 'jiyun'];
+        const koreanVoices = voices.filter((voice) => voice.lang
+            && voice.lang.toLowerCase().replace('_', '-').startsWith('ko'));
+
+        koreanVoice = femaleVoiceNames
+            .map((name) => koreanVoices.find((voice) => voice.name
+                && voice.name.toLowerCase().includes(name)))
+            .find(Boolean)
+            || koreanVoices.find((voice) => voice.name && /female|여성|한국의/i.test(voice.name))
+            || null;
+    }
+
+    function speakWord(word) {
+        if (!('speechSynthesis' in window)) {
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+        refreshKoreanVoice();
+        if (!koreanVoice) {
+            statusMessage.textContent = '女性の韓国語音声が見つかりません。端末の音声設定で「Yuna」を追加してね。';
+            statusMessage.className = 'status-message miss';
+            return;
+        }
+
+        currentUtterance = new SpeechSynthesisUtterance(word);
+        currentUtterance.lang = 'ko-KR';
+        currentUtterance.rate = 0.85;
+        currentUtterance.pitch = 1.0;
+        currentUtterance.voice = koreanVoice;
+        currentUtterance.onerror = () => {
+            statusMessage.textContent = '音声を再生できませんでした。もう一度単語カードを押してね。';
+            statusMessage.className = 'status-message miss';
+        };
+        currentUtterance.onend = () => {
+            currentUtterance = null;
+        };
+        window.speechSynthesis.resume();
+        window.speechSynthesis.speak(currentUtterance);
+    }
+
+    function revealCard(card) {
+        card.classList.add('flipped');
+        card.setAttribute('aria-pressed', 'true');
+        card.setAttribute('aria-label', `表向きのカード：${card.dataset.faceLabel}`);
+
+        if (currentMode === 'practice' && card.dataset.cardType === 'word') {
+            speakWord(card.dataset.spokenWord);
+        }
+    }
+
+    function flipCard(card) {
+        const canReplayWord = currentMode === 'practice'
+            && card.dataset.cardType === 'word'
+            && (card === firstCard || card.classList.contains('matched'));
+
+        if (canReplayWord) {
+            speakWord(card.dataset.spokenWord);
+            return;
+        }
+
+        if (boardLocked || card === firstCard || card.classList.contains('matched')) {
+            return;
+        }
+
+        revealCard(card);
+
+        if (!firstCard) {
+            firstCard = card;
+            statusMessage.textContent = 'もう1枚めくって、ペアを探そう。';
+            statusMessage.className = 'status-message';
+            return;
+        }
+
+        secondCard = card;
+        boardLocked = true;
+        checkForMatch();
+    }
+
+    function checkForMatch() {
+        const isMatch = firstCard.dataset.pairId === secondCard.dataset.pairId
+            && firstCard.dataset.cardType !== secondCard.dataset.cardType;
+
+        if (isMatch) {
+            handleMatch();
+        } else {
+            handleMismatch();
+        }
+    }
+
+    function handleMatch() {
+        firstCard.classList.add('matched');
+        secondCard.classList.add('matched');
+
+        score += 10;
+        matchedPairs += 1;
+        scoreElement.textContent = String(score);
+        matchedPairsElement.textContent = `${matchedPairs} / ${wordPairs.length}`;
+        statusMessage.textContent = 'ペア完成！ +10点';
+        statusMessage.className = 'status-message success';
+
+        resetTurn();
+
+        if (matchedPairs === wordPairs.length) {
+            window.setTimeout(showClearModal, 750);
+        }
+    }
+
+    function handleMismatch() {
+        statusMessage.textContent = 'おしい！もう一度覚えてみよう。';
+        statusMessage.className = 'status-message miss';
+
+        window.setTimeout(() => {
+            [firstCard, secondCard].forEach((card) => {
+                card.classList.remove('flipped');
+                card.setAttribute('aria-pressed', 'false');
+                card.setAttribute('aria-label', card.dataset.hiddenLabel);
+            });
+            resetTurn();
+            statusMessage.textContent = 'カードを2枚めくって、ペアを見つけよう。';
+            statusMessage.className = 'status-message';
+        }, 1000);
+    }
+
+    function resetTurn() {
+        firstCard = null;
+        secondCard = null;
+        boardLocked = false;
+    }
+
+    function showClearModal() {
+        finalScore.textContent = `最終スコア：${score}点`;
+        clearModal.classList.add('show');
+        clearModal.setAttribute('aria-hidden', 'false');
+        clearModal.querySelector('.home-button').focus();
+    }
+
+    if ('speechSynthesis' in window) {
+        refreshKoreanVoice();
+        window.speechSynthesis.addEventListener('voiceschanged', refreshKoreanVoice);
+    }
+
+    normalModeButton.addEventListener('click', () => setGameMode('normal'));
+    easyModeButton.addEventListener('click', () => setGameMode('easy'));
+    practiceModeButton.addEventListener('click', () => setGameMode('practice'));
+
+    quitButton.addEventListener('click', () => {
+        if (window.confirm('ゲームをやめてメイン画面に戻りますか？')) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                currentUtterance = null;
+            }
+            window.location.href = '/';
+        }
+    });
+
+    renderBoard();
+</script>
+</body>
+</html>
